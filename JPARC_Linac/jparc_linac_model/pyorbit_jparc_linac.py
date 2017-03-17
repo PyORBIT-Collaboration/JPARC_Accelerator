@@ -33,7 +33,7 @@ random.seed(100)
 names = ["LI_MEBT1","LI_DTL1","LI_DTL2","LI_DTL3"]
 
 
-#---- add S cavities
+#---- add SDTL cavities
 for ind in range(16):
 	seq_name = "LI_S"+"%02d"%(ind+1)
 	names.append(seq_name+"A")
@@ -48,6 +48,7 @@ for ind in range(21):
 	seq_name = "LI_ACS"+"%02d"%(ind+1)
 	names.append(seq_name+"A")
 	names.append(seq_name+"B")
+	
 """
 #---- add L3BT
 names.append("LI_L3BT")
@@ -131,10 +132,24 @@ print "relat.  beta=",beta
 frequency = 324.0e+6
 v_light = 2.99792458e+8  # in [m/sec]
 
-#------ emittances are normalized - transverse by gamma*beta and long. by gamma**3*beta 
-(alphaX,betaX,emittX) = (-1.9620, 0.1831, 0.21)
-(alphaY,betaY,emittY) = ( 1.7681, 0.1620, 0.21)
-(alphaZ,betaZ,emittZ) = ( 0.0196, 0.5844, 0.24153)
+#-----------------------------------------------------------------
+#------ Twiss parameters from Trace3D 
+#------ x,x'  y,y'  mm,mrad 
+#------ Long Twiss: emittance deg*keV , beta deg/keV 
+#------ All emittances are 5 times bigger the RMS values
+(alphaX,betaX,emittX) =  (-1.25542, 0.15054, (12.47415/5)*1.0E-6)
+(alphaY,betaY,emittY) =  (1.95153,  0.20047, (14.11647/5)*1.0E-6)
+(alphaZ,betaZ,emittZ) =  (-0.07144, 0.65158, (483.76239/5))
+
+"""
+ From Trace3D input file ()
+ ER= 939.3014, Q= -1.0, W =  3.0, XI=  15.0
+ EMITI =     12.47415,  14.11647,  483.76239,
+ BEAMI =     -1.25542,   0.15054,   1.95153,   0.20047,   -0.07144,   0.65158,
+"""
+#---- Translate long. Twiss from Trace3D to PyORBIT (emittance m*GeV , beta m/GeV)
+betaZ  = betaZ *(v_light*beta/(360.*frequency))*1.0E+6
+emittZ = emittZ*(v_light*beta/(360.*frequency))/1.0E+6
 
 print " ========= PyORBIT Twiss ==========="
 print " aplha beta emitt[mm*mrad] X= %6.4f %6.4f %6.4f "%(alphaX,betaX,emittX*1.0e+6)
@@ -152,7 +167,7 @@ bunch_gen = JPARC_Linac_BunchGenerator(twissX,twissY,twissZ)
 bunch_gen.setKinEnergy(e_kin_ini)
 
 #set the beam peak current in mA
-bunch_gen.setBeamCurrent(40.0)
+bunch_gen.setBeamCurrent(15.0)
 
 bunch_in = bunch_gen.getBunch(nParticles = 10000, distributorClass = WaterBagDist3D)
 #bunch_in = bunch_gen.getBunch(nParticles = 100000, distributorClass = GaussDist3D)
