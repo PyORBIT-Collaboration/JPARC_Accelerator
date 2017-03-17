@@ -32,7 +32,25 @@ random.seed(100)
 
 names = ["LI_MEBT1","LI_DTL1","LI_DTL2","LI_DTL3"]
 
+#---- This part will define the sequence names 
+#---- for SDTL and ACS cavities A and B combined in one
 
+#---- add SDTL cavities
+for ind in range(16):
+	seq_name = "LI_S"+"%02d"%(ind+1)
+	names.append(seq_name)
+	
+#---- add MEBT2
+names.append("LI_MEBT2")
+
+#---- add ACS cavities
+for ind in range(21):
+	seq_name = "LI_ACS"+"%02d"%(ind+1)
+	names.append(seq_name)
+
+"""
+#---- This is an old stile seq. names with A and B parts of SDTL and ACS cavities
+#---- separated.
 #---- add SDTL cavities
 for ind in range(16):
 	seq_name = "LI_S"+"%02d"%(ind+1)
@@ -48,8 +66,7 @@ for ind in range(21):
 	seq_name = "LI_ACS"+"%02d"%(ind+1)
 	names.append(seq_name+"A")
 	names.append(seq_name+"B")
-	
-"""
+
 #---- add L3BT
 names.append("LI_L3BT")
 """

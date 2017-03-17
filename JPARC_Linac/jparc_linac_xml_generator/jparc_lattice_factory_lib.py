@@ -452,5 +452,106 @@ class Acc_Node_JPARC_Generator:
 				phase = phaseNearTargetPhaseDeg(180.+phase,0.)
 				params_da.setValue("phase",phase)
 
+class JPARC_Linac_Lattice_Transformation:
+	"""
+	This class will reorder the acc. sequences according to the 
+	specific order defined by user, not by XAL xml file.
+	It also will combine the A and B parts of the SDTL and RCS 
+	cavities.
+	"""
+	def __init__(self,jparc_lattice_da):
+		self.jparc_lattice_da = jparc_lattice_da
+		self.acc_seqs_init_da = jparc_lattice_da.childAdaptors()
+		#----------------------------------------------------------------
+		self.acc_seq_names = ["LI_MEBT1","LI_DTL1","LI_DTL2","LI_DTL3"]
+		for ind in range(16):
+			seq_name = "LI_S"+"%02d"%(ind+1)
+			self.acc_seq_names.append(seq_name)
+		self.acc_seq_names.append("LI_MEBT2")
+		for ind in range(21):
+			seq_name = "LI_ACS"+"%02d"%(ind+1)
+			self.acc_seq_names.append(seq_name)
+		self.acc_seq_names.append("LI_L3BT")
+		self.acc_seq_names.append("LI_L3BD0")
+		self.acc_seq_names.append("LI_L3BD100")
+		self.acc_seq_names.append("LI_L3BD30")
+		self.acc_seq_names.append("LI_L3BD90")
+		self.acc_seq_names.append("LI_L3L3ANA")
+		self.acc_seq_names.append("LI_BD0")
+		self.acc_seq_names.append("LI_BD30")
+		self.acc_seq_names.append("LI_BD100")
+		self.acc_seq_names.append("LI_BD90")
+		self.acc_seq_names.append("LI_L3ANA")
+		#----------------------------------------------------------------
 			
+	def getTransformedLattice(self):
+		jparc_lattice_da = XmlDataAdaptor("JPARC_LINAC")
+		for seq_name in self.acc_seq_names:
+			accSeq_da = self.getAccSeq(seq_name)
+			jparc_lattice_da.addChildAdaptor(accSeq_da)
+		return jparc_lattice_da
+			
+	def getAccSeq(self,seq_name):
+		seq_da = None
+		if(seq_name.find("LI_S") < 0 and seq_name.find("LI_ACS") < 0):
+			for acc_seq_da in self.acc_seqs_init_da:
+				if(acc_seq_da.stringValue("name") == seq_name):
+					seq_da = acc_seq_da
+		else:
+			acc_seqs_ab_da = []
+			for st in ["A","B"]:
+				seq_name_tmp = seq_name+st
+				for acc_seq_da in self.acc_seqs_init_da:
+					if(acc_seq_da.stringValue("name") == seq_name_tmp):
+						acc_seqs_ab_da.append(acc_seq_da)
+			seq_da = self.combineTwoSeqs(seq_name,acc_seqs_ab_da[0],acc_seqs_ab_da[1])
+		return seq_da
+		
+	def combineTwoSeqs(self,seq_name,acc_seq0_da,acc_seq1_da):
+		accSeq_da = XmlDataAdaptor(seq_name)
+		accSeq_da.setValue("name",seq_name)
+		accSeq_da.setValue("bpmFrequency",324.0E6)
+		length0 = acc_seq0_da.doubleValue("length")
+		length1 = acc_seq1_da.doubleValue("length")
+		accSeq_da.setValue("length",length0+length1)
+		accElems0_da = acc_seq0_da.childAdaptors("accElement")
+		accElems1_da = acc_seq1_da.childAdaptors("accElement")
+		for accElem_da in accElems1_da:
+			pos = accElem_da.doubleValue("pos") + length0
+			accElem_da.setValue("pos",pos)
+		accElems_da = accElems0_da + accElems1_da
+		#-----------------------------------------
+		def positionComp(node1_da,node2_da):
+			if(node1_da.doubleValue("pos") > node2_da.doubleValue("pos")):
+				return 1
+			else:
+				if(node1_da.doubleValue("pos") == node2_da.doubleValue("pos")):
+					return 0
+			return -1
+		#===================================
+		accElems_da.sort(positionComp)		
+		#-----------------------------------------
+		cav_pos_avg = 0.
+		count = 0
+		for accElem_da in accElems_da:
+			if(accElem_da.stringValue("type") == "RFGAP"):
+				cav_pos_avg += accElem_da.doubleValue("pos")
+				params_da = accElem_da.childAdaptors("parameters")[0]
+				params_da.setValue("cavity",seq_name)
+				count += 1
+		cav_pos_avg /= count
+		cavs_da = acc_seq0_da.childAdaptors("Cavities")[0]
+		cav_da = cavs_da.childAdaptors("Cavity")[0]
+		cav_da.setValue("pos",cav_pos_avg)
+		cav_da.setValue("name",seq_name)
+		for accElem_da in accElems_da:
+			accSeq_da.addChildAdaptor(accElem_da)
+		cavs_da = accSeq_da.createChild("Cavities")
+		cavs_da.addChildAdaptor(cav_da)
+		return accSeq_da
+			
+			
+
+			
+
 

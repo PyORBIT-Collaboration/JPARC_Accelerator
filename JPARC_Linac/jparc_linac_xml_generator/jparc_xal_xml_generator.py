@@ -11,7 +11,7 @@ import time
 from orbit.utils.xml import XmlDataAdaptor
 
 from jparc_lattice_factory_lib import JPARC_Linac_Lattice_XAL_Generator
-
+from jparc_lattice_factory_lib import JPARC_Linac_Lattice_Transformation
 
 print "==============START======================="
 #---- the XML file name with the structure
@@ -23,6 +23,12 @@ print "Acc seq n=",len(acc_seqs_init_da)
 
 jparc_lattice_gen = JPARC_Linac_Lattice_XAL_Generator(acc_seqs_init_da)
 lattice_da = jparc_lattice_gen.makeLattice_da()
+
+#---- Transformation of the lattice: all RCS and ACS cavities 
+#---- with A and B indeces will be combined
+transformation = JPARC_Linac_Lattice_Transformation(lattice_da)
+lattice_da = transformation.getTransformedLattice()
+
 lattice_da.writeToFile("../jparc_linac_lattice_xml/jparc_linac.xml")
 
 print "Stop."
