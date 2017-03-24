@@ -26,10 +26,18 @@ from orbit.lattice import AccLattice, AccNode, AccActionsContainer
 from orbit.py_linac.lattice_modifications import Add_quad_apertures_to_lattice
 from orbit.py_linac.lattice_modifications import Add_rfgap_apertures_to_lattice
 
+from orbit.py_linac.lattice_modifications import Replace_BaseRF_Gap_to_AxisField_Nodes
+from orbit.py_linac.lattice_modifications import Replace_BaseRF_Gap_and_Quads_to_Overlapping_Nodes
+from orbit.py_linac.lattice_modifications import Replace_Quads_to_OverlappingQuads_Nodes
+
+from orbit.py_linac.overlapping_fields import JPARC_EngeFunctionFactory
+
 from jparc_linac_bunch_generator import JPARC_Linac_BunchGenerator
 
 random.seed(100)
 
+
+#---- Define the list of subsecuences for the lattice
 names = ["LI_MEBT1","LI_DTL1","LI_DTL2","LI_DTL3"]
 
 #---- This part will define the sequence names 
@@ -49,24 +57,6 @@ for ind in range(21):
 	names.append(seq_name)
 
 """
-#---- This is an old stile seq. names with A and B parts of SDTL and ACS cavities
-#---- separated.
-#---- add SDTL cavities
-for ind in range(16):
-	seq_name = "LI_S"+"%02d"%(ind+1)
-	names.append(seq_name+"A")
-	names.append(seq_name+"B")
-	
-
-#---- add MEBT2
-names.append("LI_MEBT2")
-
-#---- add ACS cavities
-for ind in range(21):
-	seq_name = "LI_ACS"+"%02d"%(ind+1)
-	names.append(seq_name+"A")
-	names.append(seq_name+"B")
-
 #---- add L3BT
 names.append("LI_L3BT")
 """
@@ -88,19 +78,78 @@ print "Linac lattice is ready. L=",accLattice.getLength()
 #---- BaseRfGap  uses only E0TL*cos(phi)*J0(kr) with E0TL = const
 #---- MatrixRfGap uses a matrix approach like envelope codes
 #---- RfGapTTF uses Transit Time Factors (TTF) like PARMILA
-cppGapModel = BaseRfGap
-#cppGapModel = MatrixRfGap
+#cppGapModel = BaseRfGap
+cppGapModel = MatrixRfGap
 #cppGapModel = RfGapTTF
 rf_gaps = accLattice.getRF_Gaps()
 for rf_gap in rf_gaps:
 	rf_gap.setCppGapModel(cppGapModel())
 
+#----- the LI_MEBT1:BNCH01 and LI_MEBT1:BNCH02 have different E0TL in the Trace3D
+#----- file (see ./optics/jparc_matched2_40mA100_trace3d_rfgaps.dat file)
+rf_gaps[0].setParam("E0TL",0.135408/1000.)
+rf_gaps[2].setParam("E0TL",0.147204/1000.)
+
+node_pos_dict = accLattice.getNodePositionsDict()
+
+#----- Print out RF gaps E0TL, phases and positions ===  START
+rfgap_fl_out = open("rfgap_params.dat","w")
+for rf_gap in rf_gaps:
+	E0TL = rf_gap.getParam("E0TL")*1000.
+	phase = rf_gap.getGapPhase()*180./math.pi
+	pos = node_pos_dict[rf_gap][0]
+	rfgap_fl_out.write(rf_gap.getName()+ "  %+8.6f"%E0TL + "  %+6.2f"%phase + "    %10.6f"%pos  +"\n" )
+rfgap_fl_out.close()
+#----- Print out RF gaps E0TL, phases and positions ===  END
+
+#----- Read quads from the external file and set the lattice quads' fields accordingly
+quad_fl_in = open("./optics/jparc_matched2_40mA100_trace3d_quads.dat","r")
+lns = quad_fl_in.readlines()
+quad_fl_in.close()
+quad_names_field_dict = {}
+for ln in lns:
+	res_arr = ln.split()
+	if(len(res_arr) > 2):
+		name = res_arr[0].strip()
+		field = float(res_arr[1])
+		quad_names_field_dict[name] = field
+		#print "debug trace3d quad =",name," field=",field
+
+quads = accLattice.getQuads()
+for quad in quads:
+	if(quad_names_field_dict.has_key(quad.getName())):
+		field = quad_names_field_dict[quad.getName()]
+		quad.setParam("dB/dr",field)
+		#print "debug quad =",quad.getName()," G=",quad.getParam("dB/dr")
+
+#----- Print out quads fields and positions ==================  START
+quads = accLattice.getQuads()
+quad_fl_out = open("quad_params.dat","w")
+for quad in quads:
+	[pos_start,pos_end] = node_pos_dict[quad]
+	pos = (pos_start+pos_end)/2
+	length = quad.getLength()
+	field = quad.getParam("dB/dr")
+	quad_fl_out.write(quad.getName()+ "  %+10.6f"%field+"  %+10.6f"%length  + "  %+12.6f"%pos  +"\n" )
+quad_fl_out.close()
+#----- Print out quads fields and positions ==================  END
+
+#------------------------------------------------------------------
+#---- Hard edge quads will be replaced by distributed fields for specified sequences 
+#------------------------------------------------------------------
+#---- longitudinal step along the distributed fields lattice
+z_step = 0.001
+
+#Replace_Quads_to_OverlappingQuads_Nodes(accLattice,z_step,["LI_MEBT1",],[],JPARC_EngeFunctionFactory)
+Replace_Quads_to_OverlappingQuads_Nodes(accLattice,z_step,["LI_MEBT1","LI_DTL1","LI_DTL2","LI_DTL3"],[],JPARC_EngeFunctionFactory)
+
+print "Linac new lattice is ready. L=",accLattice.getLength()
 #-----------------------------------------------------
 # Set up Space Charge Acc Nodes
 #-----------------------------------------------------
 from orbit.space_charge.sc3d import setSC3DAccNodes, setUniformEllipsesSCAccNodes
 from spacecharge import SpaceChargeCalcUnifEllipse, SpaceChargeCalc3D
-sc_path_length_min = 0.02
+sc_path_length_min = 0.003
 
 print "Set up Space Charge nodes. "
 
@@ -154,15 +203,20 @@ v_light = 2.99792458e+8  # in [m/sec]
 #------ x,x'  y,y'  mm,mrad 
 #------ Long Twiss: emittance deg*keV , beta deg/keV 
 #------ All emittances are 5 times bigger the RMS values
-(alphaX,betaX,emittX) =  (-1.25542, 0.15054, (12.47415/5)*1.0E-6)
-(alphaY,betaY,emittY) =  (1.95153,  0.20047, (14.11647/5)*1.0E-6)
-(alphaZ,betaZ,emittZ) =  (-0.07144, 0.65158, (483.76239/5))
+#------ The Trace3D file is 
+#------ ../jparc_linac_xml_generator/jparc_trace3d_lattice/jparc_matched2_40mA100.t3d
+
+(alphaX,betaX,emittX) =  (-2.153,   0.18313, (13.4606/5)*1.0E-6)
+(alphaY,betaY,emittY) =  ( 1.8253,  0.15578, (13.3520/5)*1.0E-6)
+(alphaZ,betaZ,emittZ) =  (-0.08328, 0.91909, (538.69/5))
 
 """
  From Trace3D input file ()
- ER= 939.3014, Q= -1.0, W =  3.0, XI=  15.0
- EMITI =     12.47415,  14.11647,  483.76239,
- BEAMI =     -1.25542,   0.15054,   1.95153,   0.20047,   -0.07144,   0.65158,
+ === for 40 mA =====
+ ER= 939.3014, Q= -1.0, W =  3.0, XI=  50.0,XI=15,XI=40
+ EMITI =     13.460568358239064 13.352006807621624 538.68785
+ BEAMI =    -2.153	.18313	1.8253	.15578	-.08328	.9190900000000001
+
 """
 #---- Translate long. Twiss from Trace3D to PyORBIT (emittance m*GeV , beta m/GeV)
 betaZ  = betaZ *(v_light*beta/(360.*frequency))*1.0E+6
@@ -184,21 +238,31 @@ bunch_gen = JPARC_Linac_BunchGenerator(twissX,twissY,twissZ)
 bunch_gen.setKinEnergy(e_kin_ini)
 
 #set the beam peak current in mA
-bunch_gen.setBeamCurrent(15.0)
+bunch_gen.setBeamCurrent(40.0)
 
 bunch_in = bunch_gen.getBunch(nParticles = 10000, distributorClass = WaterBagDist3D)
-#bunch_in = bunch_gen.getBunch(nParticles = 100000, distributorClass = GaussDist3D)
+#bunch_in = bunch_gen.getBunch(nParticles = 10000, distributorClass = GaussDist3D)
 #bunch_in = bunch_gen.getBunch(nParticles = 10000, distributorClass = KVDist3D)
 
 print "Bunch Generation completed."
 
-#set up design
+#set up design - arrival times at each fist gaps of all RF cavities
 accLattice.trackDesignBunch(bunch_in)
 
 print "Design tracking completed."
 
-#track through the lattice 
-paramsDict = {"old_pos":-1.,"count":0,"pos_step":0.1}
+#----- Print out RF gaps real phases after the design bunch tracking ===  START
+rfgap_fl_out = open("rfgap_real_phases.dat","w")
+for rf_gap in rf_gaps:
+	E0TL = rf_gap.getParam("E0TL")*1000.
+	phase = rf_gap.getGapPhase()*180./math.pi
+	pos = node_pos_dict[rf_gap][0]
+	rfgap_fl_out.write(rf_gap.getName()+ "  %+8.6f"%E0TL + "  %+6.2f"%phase + "    %10.6f"%pos  +"\n" )
+rfgap_fl_out.close()
+#----- Print out RF gaps real phases after the design bunch tracking ===  END
+
+#prepare to track through the lattice 
+paramsDict = {"old_pos":-1.,"count":0,"pos_step":0.01}
 actionContainer = AccActionsContainer("Test Design Bunch Tracking")
 
 pos_start = 0.
@@ -213,8 +277,11 @@ s += "   alphaY betaY emittY  normEmittY"
 s += "   alphaZ betaZ emittZ  emittZphiMeV"
 s += "   sizeX sizeY sizeZ_deg"
 s += "   eKin Nparts "
-file_out.write(s+"\n")
+#file_out.write(s+"\n")
 print " N node   position    sizeX  sizeY  sizeZdeg  eKin Nparts "
+
+#---- Here we define action that will analyze and print out beam parameters
+#---- at the entrance and exit of each accelerator element (parents and children)
 
 def action_entrance(paramsDict):
 	node = paramsDict["node"]
@@ -247,8 +314,10 @@ def action_entrance(paramsDict):
 	s += "   %6.4f  %6.4f  %6.4f  %6.4f   "%(alphaZ,betaZ,emittZ,phi_de_emittZ)
 	s += "   %5.3f  %5.3f  %5.3f "%(x_rms,y_rms,z_rms_deg)
 	s += "  %10.6f   %8d "%(eKin,nParts)
-	file_out.write(s +"\n")
-	file_out.flush()
+	#file_out.write(s +"\n")
+	#file_out.flush()
+	s_samll =  "%4.5f "%(pos+pos_start)+"  %5.3f  %5.3f   %5.3f "%(x_rms,y_rms,z_rms_deg)
+	file_out.write(s_samll +"\n")
 	s_prt = " %5d  %35s  %4.5f "%(paramsDict["count"],node.getName(),pos+pos_start)
 	s_prt += "  %5.3f  %5.3f   %5.3f "%(x_rms,y_rms,z_rms_deg)
 	s_prt += "  %10.6f   %8d "%(eKin,nParts)
@@ -257,10 +326,10 @@ def action_entrance(paramsDict):
 def action_exit(paramsDict):
 	action_entrance(paramsDict)
 	
-	
 actionContainer.addAction(action_entrance, AccActionsContainer.ENTRANCE)
 actionContainer.addAction(action_exit, AccActionsContainer.EXIT)
 
+#---- This is actual tracking of the bunch
 time_start = time.clock()
 
 accLattice.trackBunch(bunch_in, paramsDict = paramsDict, actionContainer = actionContainer)
