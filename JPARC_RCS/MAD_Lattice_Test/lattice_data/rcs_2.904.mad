@@ -1,0 +1,89 @@
+   Title, "RCS Ring"  
+!------------------------------------------------------------
+! Note: BEAM statement is excluded until after HARMON performed
+! because the ENERGY definition leads to an error in the routine.
+!------------------------------------------------------------  
+!------------Physical costants-------------------------------  
+  E0    := 0.938272310   !proton mass [GeV]  
+  C     := 2.99792458e8  !speed of light [m/sec]  
+  PI    := 3.141592654  
+  DTR   := PI/180.  
+  
+  EK    := 0.400          ![GeV] injection kinetic Energy  
+  
+  PC    := sqrt(EK*(EK+2*E0))       ;  Value PC  
+  BRHO  := 1.e9*PC/C                ;  Value BRHO  
+  GAMMA := 1+EK/E0                  ;  Value GAMMA      
+  BETA  := sqrt(1-1/(GAMMA*GAMMA))  ;  Value BETA  
+!--------------Select Nominal Tunes--------------------------  
+!------------------------------------------------------------
+!------------------------------------------------------------
+! Print the final output.  Put the BEAM statement in here
+! to generate the correct lattices.
+!  Call file='rcs_2.904_woQMfringe_6680.6270_foiltofoil.lat'  
+!  Call file='tmp.lat' 
+!  Call file='rcs_2.904_woQMBMfringe_6420.6420_foiltofoil.lat'
+!  Call file='rcs_2.904_woQMBMfringe_6680.6270_foiltofoil.lat'
+!   Call file='rcs_2.904.linear_6680.6270.foiltofoil.lat'
+!   Call file='rcs_2.904_woQMBMfringe_6680.6270_wosext_foiltofoil.lat'
+!   Call file='test.lat.wSB'
+!   Call file='test1.lat.wSB'
+!   Call file='test20121213.lat.wSB'
+!   Call file='test20121213.lat.woSB'
+!   Call file='tmp.lat'
+Call file='rcslat_6450.6420_woQMBMfringe_woMKC_wLeakFld.foiltofoil.lat'
+!------------------------------------------------------------  
+BEAM, PARTICLE=PROTON, ENERGY=EK+E0, EXN=0.00012, EYN=0.00012, &  
+       SIGE=13E-09*C/PC, SIGT=1.0 ,BUNCHED  
+!QH:=6.45
+!QV:=6.42
+!w/ ext leakage field but w/o chicane bump edge effect:
+QH:=6.447420
+QV:=6.421366
+!------------------------------------------------------------!
+  Use, RING
+  Cell
+  Vary, QFMK1, step=.01, lower=-10.0, upper=10.0
+  Vary, QFNK1, step=.01, lower=-10.0, upper=10.0
+  Vary, QFLK1, step=.01, lower=-10.0, upper=10.0
+  Vary, QDNK1, step=.01, lower=-10.0, upper=10.0
+  Vary, QDLK1, step=.01, lower=-10.0, upper=10.0
+  Vary, QFXK1, step=.01, lower=-10.0, upper=10.0
+  Vary, QDXK1, step=.01, lower=-10.0, upper=10.0
+  Constraint, Range=#E, MUX=QH, MUY=QV
+  Simplex, calls=10000, Tolerance=1.0E-10
+  Endmatch
+!------------------------------------------------------------
+
+  VALUE, QFMK1
+  VALUE, QFNK1
+  VALUE, QFLK1
+  VALUE, QDNK1
+  VALUE, QDLK1
+  VALUE, QFXK1
+  VALUE, QDXK1
+
+USE,RING
+SAVELINE, NAME=RING, FILENAME=LATTICE
+
+  SELECT, OPTICS, RANGE = #S/#E
+  OPTICS,FILENAME = "optics",&
+  COLUMNS = NAME,KEYWORD,S,L,K1L,BETX,DX,BETY,DY
+
+  PRINT, FULL
+  SELECT, FLAG=SECOND, RANGE=#S/E
+  TWISS, SAVE, DELTAP=0.00, TAPE=twiss
+
+ setplot post=2 xsize=24 ysize=16 ascale=1.5 rscale=1.5
+ PLOT, HAXIS=S, VAXIS1=BETX,BETY, RANGE=#S/#E, STYLE=100
+ PLOT, HAXIS=S, VAXIS1=BETX, RANGE=#S/#E, STYLE=100
+ PLOT, HAXIS=S, VAXIS1=BETY, RANGE=#S/#E, STYLE=100
+ PLOT, HAXIS=S, VAXIS1=DX,DY,   RANGE=#S/#E, STYLE=100
+ PLOT, HAXIS=S, VAXIS1=DX,   RANGE=#S/#E, STYLE=100
+ PLOT, HAXIS=S, VAXIS1=DY,   RANGE=#S/#E, STYLE=100
+ PLOT, HAXIS=S, VAXIS1=X,Y,   RANGE=#S/#E, STYLE=100
+ PLOT, HAXIS=S, VAXIS1=X,   RANGE=#S/#E, STYLE=100
+ PLOT, HAXIS=S, VAXIS1=Y,   RANGE=#S/#E, STYLE=100
+
+
+stop
