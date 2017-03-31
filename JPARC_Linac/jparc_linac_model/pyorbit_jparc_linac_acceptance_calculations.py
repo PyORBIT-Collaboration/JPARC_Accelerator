@@ -2,6 +2,13 @@
 
 """
 This script will calculate longitudinal acceptance for the JPARC Linac.
+This example is for bunch at the start of the DTL1. If you want to calculate
+the acceptance of  different parts of the linac you have to modify the
+initial energy of the synchronous particle in this script.
+
+Please note that you have to use at least BaseRfGap or RfGapTTF c++ gap models
+to get reasonable results. The MatrixRfGap which is using the linear matrix for
+the tracking through the RF gap will not work for this type of calculations.
 """
 
 import sys
@@ -146,7 +153,6 @@ for node in aprtNodes:
 """
 print "===== Aperture Nodes Added ======= n Aprts=",len(aprtNodes)
 
-
 #set up design - arrival times at each fist gaps of all RF cavities
 accLattice.trackDesignBunch(bunch)
 
@@ -190,9 +196,8 @@ accLattice.trackBunch(bunch, paramsDict = paramsDict, actionContainer = actionCo
 time_exec = time.clock() - time_start
 print "time[sec]=",time_exec
 
-#---- make initial coordinates as real ones
-swapInitCoordsAttrAndCoords(bunch)
-
+#---- print out the initial phase and energy (dE) of particles
+#---- that came through the lattice
 file_out = open("pyorbit_init_phase_energy.dat","w")
 
 s = "# phase[deg] energy[keV] "
@@ -200,16 +205,16 @@ file_out.write(s+"\n")
 
 nParts = bunch.getSize()
 for ind in range(nParts):
-	phase = bunch.z(ind)/phase_to_z_coeff
-	dE = bunch.dE(ind)*1.0e+6
+	z = bunch.partAttrValue("ParticleInitialCoordinates", ind, 4)
+	dE = bunch.partAttrValue("ParticleInitialCoordinates", ind, 5)
+	phase = z/phase_to_z_coeff
+	dE = dE*1.0e+6
 	s = "  %10.4f   %10.3f "%(phase,dE)
 	file_out.write(s+"\n")
 
 file_out.close()
 
-
-#---- make print real coordinates after another switching
-swapInitCoordsAttrAndCoords(bunch)
+#---- print real coordinates at the end of the linac
 beta_new = bunch.getSyncParticle().beta()
 phase_to_z_coeff_new = - (beta_new*lambda_rf)/360.
 file_out = open("pyorbit_final_phase_energy.dat","w")
