@@ -71,6 +71,8 @@ xml_file_name = "../jparc_linac_lattice_xml/jparc_linac.xml"
 #---- make lattice from XML file 
 accLattice = jparc_linac_factory.getLinacAccLattice(names,xml_file_name)
 
+seq_names = names
+
 print "Linac lattice is ready. L=",accLattice.getLength()
 
 #----set up RF Gap Model -------------
@@ -141,8 +143,8 @@ quad_fl_out.close()
 z_step = 0.001
 
 #Replace_Quads_to_OverlappingQuads_Nodes(accLattice,z_step,["LI_MEBT1",],[],JPARC_EngeFunctionFactory)
-Replace_Quads_to_OverlappingQuads_Nodes(accLattice,z_step,["LI_MEBT1","LI_DTL1","LI_DTL2","LI_DTL3"],[],JPARC_EngeFunctionFactory)
-
+#Replace_Quads_to_OverlappingQuads_Nodes(accLattice,z_step,["LI_MEBT1","LI_DTL1","LI_DTL2","LI_DTL3"],[],JPARC_EngeFunctionFactory)
+Replace_Quads_to_OverlappingQuads_Nodes(accLattice,z_step,seq_names,[],JPARC_EngeFunctionFactory)
 print "Linac new lattice is ready. L=",accLattice.getLength()
 #-----------------------------------------------------
 # Set up Space Charge Acc Nodes
@@ -278,6 +280,7 @@ s += "   alphaZ betaZ emittZ  emittZphiMeV"
 s += "   sizeX sizeY sizeZ_deg"
 s += "   eKin Nparts "
 #file_out.write(s+"\n")
+file_out.write("pos sizeX sizeY sizeZdeg \n")
 print " N node   position    sizeX  sizeY  sizeZdeg  eKin Nparts "
 
 #---- Here we define action that will analyze and print out beam parameters

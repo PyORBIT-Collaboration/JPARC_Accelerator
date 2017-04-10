@@ -551,7 +551,25 @@ class JPARC_Linac_Lattice_Transformation:
 		return accSeq_da
 			
 			
-
+def LI_MEBT2_RF_Gaps_Mode_Fix(jparc_lattice_da):
+	"""
+	This function will assign the mode parameters to the RF gaps in
+	the BNCH01 and BNCH02 cavities.Each cavity has 5 and 5 RF gaps (total 10).
+	Each group of 5 gaps has modes 0,1,0,1,0. The XAL XML file does not have
+	this information.
+	"""
+	count = 0
+	for accSeq_da in jparc_lattice_da.childAdaptors():
+		if(accSeq_da.stringValue("name") == "LI_MEBT2"):
+			for accElem_da in accSeq_da.childAdaptors("accElement"):
+				if(accElem_da.stringValue("type") == "RFGAP"):
+					params_da = accElem_da.childAdaptors("parameters")[0]
+					ind = count % 5
+					mode = 0
+					if(ind == 1 or ind == 3): mode = 1
+					params_da.setValue("mode",mode)
+					count += 1
+					
 			
 
 

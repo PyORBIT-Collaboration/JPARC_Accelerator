@@ -4184,7 +4184,7 @@
    </TTFs>
   </accElement>
   <accElement length="0.0" name="LI_MEBT2:BNCH01:Rg02" pos="4.94869203" type="RFGAP">
-   <parameters E0L="0.0001979784" E0TL="0.0001979784" EzFile="" aperture="0.041" aprt_type="1" cavity="LI_MEBT2:BNCH01" mode="0" phase="90.0"/>
+   <parameters E0L="0.0001979784" E0TL="0.0001979784" EzFile="" aperture="0.041" aprt_type="1" cavity="LI_MEBT2:BNCH01" mode="1" phase="90.0"/>
    <TTFs beta_max="1.0" beta_min="0.0">
     <polyT order="0" pcoefs="1.0 "/>
     <polyS order="0" pcoefs="0 "/>
@@ -4202,7 +4202,7 @@
    </TTFs>
   </accElement>
   <accElement length="0.0" name="LI_MEBT2:BNCH01:Rg04" pos="5.12017825" type="RFGAP">
-   <parameters E0L="0.0001979784" E0TL="0.0001979784" EzFile="" aperture="0.041" aprt_type="1" cavity="LI_MEBT2:BNCH01" mode="0" phase="90.0"/>
+   <parameters E0L="0.0001979784" E0TL="0.0001979784" EzFile="" aperture="0.041" aprt_type="1" cavity="LI_MEBT2:BNCH01" mode="1" phase="90.0"/>
    <TTFs beta_max="1.0" beta_min="0.0">
     <polyT order="0" pcoefs="1.0 "/>
     <polyS order="0" pcoefs="0 "/>
@@ -4229,7 +4229,7 @@
    </TTFs>
   </accElement>
   <accElement length="0.0" name="LI_MEBT2:BNCH01:Rg07" pos="5.80612313" type="RFGAP">
-   <parameters E0L="0.0001979784" E0TL="0.0001979784" EzFile="" aperture="0.041" aprt_type="1" cavity="LI_MEBT2:BNCH01" mode="0" phase="90.0"/>
+   <parameters E0L="0.0001979784" E0TL="0.0001979784" EzFile="" aperture="0.041" aprt_type="1" cavity="LI_MEBT2:BNCH01" mode="1" phase="90.0"/>
    <TTFs beta_max="1.0" beta_min="0.0">
     <polyT order="0" pcoefs="1.0 "/>
     <polyS order="0" pcoefs="0 "/>
@@ -4247,7 +4247,7 @@
    </TTFs>
   </accElement>
   <accElement length="0.0" name="LI_MEBT2:BNCH01:Rg09" pos="5.97760935" type="RFGAP">
-   <parameters E0L="0.0001979784" E0TL="0.0001979784" EzFile="" aperture="0.041" aprt_type="1" cavity="LI_MEBT2:BNCH01" mode="0" phase="90.0"/>
+   <parameters E0L="0.0001979784" E0TL="0.0001979784" EzFile="" aperture="0.041" aprt_type="1" cavity="LI_MEBT2:BNCH01" mode="1" phase="90.0"/>
    <TTFs beta_max="1.0" beta_min="0.0">
     <polyT order="0" pcoefs="1.0 "/>
     <polyS order="0" pcoefs="0 "/>
@@ -4307,7 +4307,7 @@
    </TTFs>
   </accElement>
   <accElement length="0.0" name="LI_MEBT2:BNCH02:Rg02" pos="10.78320475" type="RFGAP">
-   <parameters E0L="0.000261541212" E0TL="0.000261541212" EzFile="" aperture="0.041" aprt_type="1" cavity="LI_MEBT2:BNCH02" mode="0" phase="90.0"/>
+   <parameters E0L="0.000261541212" E0TL="0.000261541212" EzFile="" aperture="0.041" aprt_type="1" cavity="LI_MEBT2:BNCH02" mode="1" phase="90.0"/>
    <TTFs beta_max="1.0" beta_min="0.0">
     <polyT order="0" pcoefs="1.0 "/>
     <polyS order="0" pcoefs="0 "/>
@@ -4325,7 +4325,7 @@
    </TTFs>
   </accElement>
   <accElement length="0.0" name="LI_MEBT2:BNCH02:Rg04" pos="10.95469097" type="RFGAP">
-   <parameters E0L="0.000261541212" E0TL="0.000261541212" EzFile="" aperture="0.041" aprt_type="1" cavity="LI_MEBT2:BNCH02" mode="0" phase="90.0"/>
+   <parameters E0L="0.000261541212" E0TL="0.000261541212" EzFile="" aperture="0.041" aprt_type="1" cavity="LI_MEBT2:BNCH02" mode="1" phase="90.0"/>
    <TTFs beta_max="1.0" beta_min="0.0">
     <polyT order="0" pcoefs="1.0 "/>
     <polyS order="0" pcoefs="0 "/>
@@ -4352,7 +4352,7 @@
    </TTFs>
   </accElement>
   <accElement length="0.0" name="LI_MEBT2:BNCH02:Rg07" pos="11.64063585" type="RFGAP">
-   <parameters E0L="0.000261541212" E0TL="0.000261541212" EzFile="" aperture="0.041" aprt_type="1" cavity="LI_MEBT2:BNCH02" mode="0" phase="90.0"/>
+   <parameters E0L="0.000261541212" E0TL="0.000261541212" EzFile="" aperture="0.041" aprt_type="1" cavity="LI_MEBT2:BNCH02" mode="1" phase="90.0"/>
    <TTFs beta_max="1.0" beta_min="0.0">
     <polyT order="0" pcoefs="1.0 "/>
     <polyS order="0" pcoefs="0 "/>
@@ -4370,7 +4370,7 @@
    </TTFs>
   </accElement>
   <accElement length="0.0" name="LI_MEBT2:BNCH02:Rg09" pos="11.81212207" type="RFGAP">
-   <parameters E0L="0.000261541212" E0TL="0.000261541212" EzFile="" aperture="0.041" aprt_type="1" cavity="LI_MEBT2:BNCH02" mode="0" phase="90.0"/>
+   <parameters E0L="0.000261541212" E0TL="0.000261541212" EzFile="" aperture="0.041" aprt_type="1" cavity="LI_MEBT2:BNCH02" mode="1" phase="90.0"/>
    <TTFs beta_max="1.0" beta_min="0.0">
     <polyT order="0" pcoefs="1.0 "/>
     <polyS order="0" pcoefs="0 "/>

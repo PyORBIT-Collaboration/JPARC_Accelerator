@@ -12,6 +12,7 @@ from orbit.utils.xml import XmlDataAdaptor
 
 from jparc_lattice_factory_lib import JPARC_Linac_Lattice_XAL_Generator
 from jparc_lattice_factory_lib import JPARC_Linac_Lattice_Transformation
+from jparc_lattice_factory_lib import LI_MEBT2_RF_Gaps_Mode_Fix
 
 print "==============START======================="
 #---- the XML file name with the structure
@@ -28,6 +29,9 @@ lattice_da = jparc_lattice_gen.makeLattice_da()
 #---- with A and B indeces will be combined
 transformation = JPARC_Linac_Lattice_Transformation(lattice_da)
 lattice_da = transformation.getTransformedLattice()
+
+#---- Fix the mode parameters of RF gaps in the LI_MEBT2 sequence
+LI_MEBT2_RF_Gaps_Mode_Fix(lattice_da)
 
 lattice_da.writeToFile("../jparc_linac_lattice_xml/jparc_linac.xml")
 
