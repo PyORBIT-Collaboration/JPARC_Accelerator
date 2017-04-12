@@ -48,3 +48,6 @@ abnormalities in the XAL xml file:
    removed LI_L3BD100:BLMP66 completely
    changed positions LI_ACS19B:FCT00 and LI_ACS19B:SCT00 to 1.9493572 instead of 7.5911432
 
+5. LI_MEBT2 accelerator sequence RF gaps mode were wrong. The right modes for RF BNCH01 and BNCH02
+   are 0,1,0,1,0 - 0,1,0,1,0. Each buncher has 10 RF gaps. The function LI_MEBT2_RF_Gaps_Mode_Fix was 
+   introduced to fix this.
