@@ -112,11 +112,13 @@ lambda_rf = v_light/frequency
 phase_to_z_coeff = - (beta*lambda_rf)/360.
 
 energy_spread = 0.002
+phase_sperad = 360.
 nPhasePoints = 361*2
 nEnergyPoints = 1000
 
-phase_step = 360./(nPhasePoints-1)
+phase_step = phase_sperad/(nPhasePoints-1)
 energy_step = energy_spread/(nEnergyPoints-1)
+initPhaseSpaceArea = energy_spread*phase_sperad
 
 x = 0.
 xp = 0.
@@ -124,13 +126,13 @@ y = 0.
 yp = 0.
 
 for phase_ind in range(nPhasePoints):
-	phase = phase_step*phase_ind - 180.
+	phase = phase_step*phase_ind - phase_sperad/2
 	z = phase_to_z_coeff*phase
 	for energy_ind in range(nEnergyPoints):
 		dE = energy_step*energy_ind - energy_spread/2
 		bunch.addParticle(x,xp,y,yp,z,dE)
 
-#==== memeorize initail coordinates
+#==== memorize initial coordinates
 bunch.addPartAttr("ParticleInitialCoordinates")
 copyCoordsToInitCoordsAttr(bunch)
 
@@ -230,4 +232,9 @@ for ind in range(nParts):
 	file_out.write(s+"\n")
 
 file_out.close()
+finalPhaseSpace = ((1.0*nParts)/(nPhasePoints*nEnergyPoints))*initPhaseSpaceArea
+print "Init Acceptance [GeV*deg] = ",initPhaseSpaceArea
+print "Acceptance [MeV*deg]      = ",finalPhaseSpace*1000.
+deg_to_sec = (1./frequency)/360
+print "Acceptance [eV*s]         = ",finalPhaseSpace*1.0e+9*deg_to_sec
 
