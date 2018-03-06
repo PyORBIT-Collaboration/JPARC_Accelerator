@@ -66,7 +66,7 @@ jparc_linac_factory = JPARC_LinacLatticeFactory()
 jparc_linac_factory.setMaxDriftLength(0.01)
 
 #---- the XML file name with the structure
-xml_file_name = "../jparc_linac_lattice_xml/jparc_linac_new.xml"
+xml_file_name = "../jparc_linac_lattice_xml/jparc_linac.xml"
 
 #---- make lattice from XML file 
 accLattice = jparc_linac_factory.getLinacAccLattice(names,xml_file_name)
