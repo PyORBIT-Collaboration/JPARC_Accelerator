@@ -102,9 +102,11 @@ print "debug ==============================="
 for typeId in types_arr:
 	print "debug type=",typeId, " n elems.=",types_count_dict[typeId]
 
+
 #=========Print Quads' fields[T/m], lengths[m], and positions[m]
 #----- Trace3D has length in mm
 fl_out = open("../jparc_linac_model/optics/jparc_matched2_40mA100_trace3d_quads.dat","w")
+fl_out.write(" quad    field[T/m]    length[m]     pos[m]  \n")
 for quad_name in quad_names:
 	field = quad_field_dict[quad_name]
 	length = quad_length_dict[quad_name]/1000.
@@ -113,12 +115,52 @@ for quad_name in quad_names:
 	fl_out.write(quad_name + "  %+10.6f"%field+"  %10.6f"%length  + "  %12.6f"%pos  +"\n")
 fl_out.close()
 
-#=======Print RF Gaps E0TL in MeV, phases[deg]+180, position[m]
+
+#----- The last SDTL cavity 16(A+B) with 5+5 gaps are the gaps with NEW names 
+#----- in the existing Trace3D file
+new_gap_names_arr = []
+
+for cav_letter in ["A","B"]:
+	cav_name = "LI_S16"+cav_letter
+	for gap_ind in range(5):
+		gap_name = ":RG"+"%02d"%(gap_ind+1)
+		new_gap_names_arr.append(cav_name+gap_name)
+	
+#----- The MEBT2 two cavities with 10 gaps each are the gaps with NEW names 
+#----- in the existing Trace3D file
+for cav_name in ["LI_MEBT2:BNCH01:Rg","LI_MEBT2:BNCH02:Rg"]:
+	for gap_ind in range(10):
+		gap_name = cav_name +"%02d"%(gap_ind+1)
+		new_gap_names_arr.append(gap_name)
+
+#=======Print RF Gaps E0TL in MeV, phases[deg]+180, position[m] =============
+#-------The ACS gap names should be generated in advance. In the Trace3D file 
+#-------the rag names are all the same "NEW"
+
+for cav_ind in range(21):
+	cav_name_0 = "LI_ACS"+"%02d"%(cav_ind+1)
+	for cav_letter in ["A","B"]:
+		cav_name = cav_name_0 + cav_letter
+		for gap_ind in range(17):
+			gap_name = ":RG"+"%02d"%(gap_ind+1)
+			new_gap_names_arr.append(cav_name+gap_name)
+
+#-----debug printing of the ACS gap names - there should be 714 gaps
+#for gap_ind in range(len(new_gap_names_arr)):
+#	print "i=",gap_ind," cav=",new_gap_names_arr[gap_ind]
+
+acs_gap_ind = 0
+
 eKin = 3.0
 fl_out = open("../jparc_linac_model/optics/jparc_matched2_40mA100_trace3d_rfgaps.dat","w")
+fl_out.write(" gap_name    E0TL[MeV]    phase[deg]     pos[m]    EkinIn[MeV]    EkinOut[MeV] \n")
+
 for rec in rec_arr:
 	if(rec.typeId == 10):
 		rfgap_name = rec.name
+		if(rfgap_name == "NEW"):
+			rfgap_name = new_gap_names_arr[acs_gap_ind]		
+			acs_gap_ind += 1
 		E0TL = rec.params_arr[0]
 		phase = phaseNearTargetPhaseDeg(180.+rec.params_arr[1],0.)
 		eKin_in = eKin
