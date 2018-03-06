@@ -66,7 +66,7 @@ jparc_linac_factory = JPARC_LinacLatticeFactory()
 jparc_linac_factory.setMaxDriftLength(0.01)
 
 #---- the XML file name with the structure
-xml_file_name = "../jparc_linac_lattice_xml/jparc_linac.xml"
+xml_file_name = "../jparc_linac_lattice_xml/jparc_linac_new.xml"
 
 #---- make lattice from XML file 
 accLattice = jparc_linac_factory.getLinacAccLattice(names,xml_file_name)
@@ -80,8 +80,8 @@ print "Linac lattice is ready. L=",accLattice.getLength()
 #---- BaseRfGap  uses only E0TL*cos(phi)*J0(kr) with E0TL = const
 #---- MatrixRfGap uses a matrix approach like envelope codes
 #---- RfGapTTF uses Transit Time Factors (TTF) like PARMILA
-#cppGapModel = BaseRfGap
-cppGapModel = MatrixRfGap
+cppGapModel = BaseRfGap
+#cppGapModel = MatrixRfGap
 #cppGapModel = RfGapTTF
 rf_gaps = accLattice.getRF_Gaps()
 for rf_gap in rf_gaps:
@@ -96,6 +96,7 @@ node_pos_dict = accLattice.getNodePositionsDict()
 
 #----- Print out RF gaps E0TL, phases and positions ===  START
 rfgap_fl_out = open("rfgap_params.dat","w")
+rfgap_fl_out.write(" GapName  E0TL[MeV]   phase[deg]   pos[m]    \n")
 for rf_gap in rf_gaps:
 	E0TL = rf_gap.getParam("E0TL")*1000.
 	phase = rf_gap.getGapPhase()*180./math.pi
@@ -106,7 +107,7 @@ rfgap_fl_out.close()
 
 #----- Read quads from the external file and set the lattice quads' fields accordingly
 quad_fl_in = open("./optics/jparc_matched2_40mA100_trace3d_quads.dat","r")
-lns = quad_fl_in.readlines()
+lns = quad_fl_in.readlines()[1:]
 quad_fl_in.close()
 quad_names_field_dict = {}
 for ln in lns:
@@ -127,6 +128,7 @@ for quad in quads:
 #----- Print out quads fields and positions ==================  START
 quads = accLattice.getQuads()
 quad_fl_out = open("quad_params.dat","w")
+quad_fl_out.write(" Quad  G[T/m]   length[m]   pos[m]    \n")
 for quad in quads:
 	[pos_start,pos_end] = node_pos_dict[quad]
 	pos = (pos_start+pos_end)/2
@@ -144,7 +146,7 @@ z_step = 0.001
 
 #Replace_Quads_to_OverlappingQuads_Nodes(accLattice,z_step,["LI_MEBT1",],[],JPARC_EngeFunctionFactory)
 #Replace_Quads_to_OverlappingQuads_Nodes(accLattice,z_step,["LI_MEBT1","LI_DTL1","LI_DTL2","LI_DTL3"],[],JPARC_EngeFunctionFactory)
-Replace_Quads_to_OverlappingQuads_Nodes(accLattice,z_step,seq_names,[],JPARC_EngeFunctionFactory)
+#Replace_Quads_to_OverlappingQuads_Nodes(accLattice,z_step,seq_names,[],JPARC_EngeFunctionFactory)
 print "Linac new lattice is ready. L=",accLattice.getLength()
 #-----------------------------------------------------
 # Set up Space Charge Acc Nodes
