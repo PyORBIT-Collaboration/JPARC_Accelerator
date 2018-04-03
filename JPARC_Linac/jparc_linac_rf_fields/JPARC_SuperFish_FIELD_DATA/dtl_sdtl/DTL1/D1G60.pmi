@@ -1,0 +1,25 @@
+Input data for Parmila; originating program = DTLfish.
+Cavity type: DTL
+Design frequency     =   324.000     MHz
+Resonant frequency   =   324.000     MHz
+Design beta          =  0.177429    
+Particle beta        =  0.177429    
+Cavity E0            =   4.40000     MV/m
+Transit-time factor  =  0.774801    
+Normalization length =   8.20862     cm
+
+Cell  Zstart(cm) Zcenter(cm)  Zend(cm)  Lnorm(cm)   E0(MV/m)     g/bl
+  1     0.000000   0.000000   8.208623   8.208623   4.400000   0.342169
+
+Cell   1  Beta =  0.177429     dZctr =   0.0000000
+X         X1          X2
+T     0.3874007   0.3874007
+Tp    0.0326992   0.0326992
+Tpp   0.0033031   0.0033031
+S    -0.2583358   0.2583358
+Sp   -0.0298976   0.0298976
+Spp  -0.0048942   0.0048942
+
+Shunt impedance data:
+Coupling(%)  Z(MOhm/m)
+   0.000      66.6826    

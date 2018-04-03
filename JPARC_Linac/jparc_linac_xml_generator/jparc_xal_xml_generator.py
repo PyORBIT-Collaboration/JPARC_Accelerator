@@ -16,7 +16,6 @@ from jparc_lattice_factory_lib import LI_MEBT2_RF_Gaps_Mode_Fix
 
 print "==============START======================="
 #---- the XML file name with the structure
-xml_file_name = "./jparc_xal_xml/jparc-LI_RCS-a400_5mA131214_S16.xdxf"
 xml_file_name = "./jparc_xal_xml/jparc-LI_RCS-40mA_-2483_20160603.xdxf"
 acc_da = XmlDataAdaptor.adaptorForFile(xml_file_name)
 acc_seqs_init_da = acc_da.childAdaptors("sequence")
